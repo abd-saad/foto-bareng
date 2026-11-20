@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Foto Bareng</title>
+<meta name="description" content="Photobooth online berdua: foto bareng dalam satu strip walau beda tempat.">
+<meta name="theme-color" content="#f4ede1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4ede1;
+    --surface: #fffaf2;
+    --surface-2: #ece3d4;
+    --ink: #2b211b;
+    --ink-soft: #6f6157;
+    --line: #dccfbd;
+    --accent: #c8402f;
+    --accent-ink: #fff7ef;
+    --ok: #2f7a4f;
+    --warn: #b06a12;
+    --shadow: 0 1px 0 rgba(43,33,27,.06), 0 10px 30px -12px rgba(43,33,27,.25);
+    --radius: 18px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #17130f;
+      --surface: #221c17;
+      --surface-2: #2d251f;
+      --ink: #f3eadf;
+      --ink-soft: #b3a596;
+      --line: #3b3129;
+      --accent: #e8604c;
+      --accent-ink: #1b0f0b;
+      --ok: #6cc28f;
+      --warn: #e1a24c;
+      --shadow: 0 1px 0 rgba(0,0,0,.3), 0 14px 34px -14px rgba(0,0,0,.7);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #17130f;
+    --surface: #221c17;
+    --surface-2: #2d251f;
+    --ink: #f3eadf;
+    --ink-soft: #b3a596;
+    --line: #3b3129;
+    --accent: #e8604c;
+    --accent-ink: #1b0f0b;
+    --ok: #6cc28f;
+    --warn: #e1a24c;
+    --shadow: 0 1px 0 rgba(0,0,0,.3), 0 14px 34px -14px rgba(0,0,0,.7);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.5 "DM Sans", system-ui, sans-serif;
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input { font: inherit; color: inherit; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 20px 16px 48px; }
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+  .brand { font-family: "Fraunces", serif; font-weight: 600; font-size: 22px; letter-spacing: -.01em; white-space: nowrap; display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; }
+  .brand i { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); display: inline-block; box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent); }
+
+  .pill { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; padding: 6px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--ink-soft); white-space: nowrap; }
+  .pill[hidden] { display: none; }
+  .pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-soft); }
+  .pill[data-s="ok"]::before { background: var(--ok); }
+  .pill[data-s="wait"]::before { background: var(--warn); animation: blink 1.2s infinite; }
+  .pill[data-s="bad"]::before { background: var(--accent); }
+  @keyframes blink { 50% { opacity: .3; } }
+
+  .btn { appearance: none; border: 1px solid var(--line); background: var(--surface); padding: 12px 18px; border-radius: 999px; cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: transform .12s, background .2s; min-height: 46px; }
+  .btn:hover { background: var(--surface-2); }
+  .btn:active { transform: scale(.97); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 700; }
+  .btn.primary:hover { background: color-mix(in srgb, var(--accent) 88%, black); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+  .btn.small { padding: 8px 14px; min-height: 38px; font-size: 14px; }
+  .btn.icon { width: 46px; padding: 0; }
+
+  .screen[hidden] { display: none !important; }
+
+  /* Home */
+  .hero { display: grid; gap: 28px; align-items: center; padding: 12px 0 0; }
+  @media (min-width: 800px) { .hero { grid-template-columns: 1.1fr 1fr; padding-top: 32px; } }
+  .hero h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(38px, 8vw, 64px); line-height: 1.02; letter-spacing: -.025em; margin: 0 0 14px; }
+  .hero h1 em { font-style: italic; font-weight: 500; color: var(--accent); }
+  .hero p.lead { color: var(--ink-soft); font-size: 18px; margin: 0 0 24px; max-width: 34ch; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .join-row { display: flex; gap: 8px; margin-top: 18px; max-width: 380px; }
+  .join-row input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 10px 16px; text-transform: lowercase; letter-spacing: .08em; }
+  .note { font-size: 13px; color: var(--ink-soft); margin-top: 18px; max-width: 46ch; }
+
+  .demo-strip { justify-self: center; width: min(250px, 52vw); background: var(--surface); padding: 14px 14px 18px; border-radius: 6px; box-shadow: var(--shadow); transform: rotate(3deg); display: grid; gap: 10px; }
+  .demo-strip .cell { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .demo-strip .cell span { aspect-ratio: 3/4; border-radius: 4px; }
+  .demo-strip .cell span:nth-child(1) { background: linear-gradient(160deg, #e9b9a3, #c8402f); }
+  .demo-strip .cell span:nth-child(2) { background: linear-gradient(160deg, #b8cbe0, #47688f); }
+  .demo-strip .cell:nth-child(2) span:nth-child(1) { background: linear-gradient(160deg, #f0d99a, #c98a2a); }
+  .demo-strip .cell:nth-child(2) span:nth-child(2) { background: linear-gradient(160deg, #c7e0c8, #3f7a56); }
+  .demo-strip .cell:nth-child(3) span:nth-child(1) { background: linear-gradient(160deg, #ead1e0, #9a4a78); }
+  .demo-strip .cell:nth-child(3) span:nth-child(2) { background: linear-gradient(160deg, #e7dccb, #7a6650); }
+  .demo-strip b { font-family: "Fraunces", serif; font-style: italic; font-weight: 500; text-align: center; font-size: 18px; margin-top: 4px; }
+
+  /* Booth */
+  .booth-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+  .invite { background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius); padding: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .invite[hidden] { display: none; }
+  .invite .code { font-family: "Fraunces", serif; font-size: 22px; letter-spacing: .12em; }
+  .invite .txt { flex: 1 1 200px; font-size: 14px; color: var(--ink-soft); }
+  .invite .txt strong { color: var(--ink); display: block; font-size: 15px; }
+
+  .stage { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stage.solo { grid-template-columns: 1fr; max-width: 560px; margin: 0 auto; }
+  .stage.solo .tile.them { display: none; }
+  @media (max-width: 560px) { .stage { gap: 6px; } }
+  .tile { position: relative; aspect-ratio: 3/4; background: var(--surface-2); border-radius: var(--radius); overflow: hidden; }
+  .stage.solo .tile { aspect-ratio: 4/3; }
+  .tile video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .tile video.mirror { transform: scaleX(-1); }
+  .tile .tag { position: absolute; left: 10px; top: 10px; font-size: 12px; font-weight: 700; background: rgba(0,0,0,.45); color: #fff; padding: 3px 10px; border-radius: 999px; backdrop-filter: blur(6px); }
+  .tile .empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 16px; color: var(--ink-soft); font-size: 14px; }
+  .tile .empty[hidden] { display: none; }
+  .count { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; font-family: "Fraunces", serif; font-size: clamp(90px, 22vw, 200px); color: #fff; text-shadow: 0 4px 30px rgba(0,0,0,.45); opacity: 0; }
+  .count.show { animation: pop 1s ease-out; }
+  @keyframes pop { 0% { opacity: 0; transform: scale(1.4); } 15% { opacity: 1; transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: scale(.9); } }
+  .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; border-radius: var(--radius); }
+  .flash.go { animation: flash .45s ease-out; }
+  @keyframes flash { 0% { opacity: .95; } 100% { opacity: 0; } }
+  .shotlabel { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); background: rgba(0,0,0,.5); color: #fff; font-size: 13px; padding: 4px 12px; border-radius: 999px; pointer-events: none; }
+  .shotlabel[hidden] { display: none; }
+
+  .controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; }
+  .group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .group > .lbl { font-size: 13px; color: var(--ink-soft); margin-right: 4px; }
+  .chip { appearance: none; border: 1px solid var(--line); background: var(--surface); padding: 7px 14px; border-radius: 999px; cursor: pointer; font-size: 14px; min-height: 38px; }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .chip:disabled { opacity: .5; cursor: default; }
+  .swatch { width: 38px; height: 38px; padding: 0; border-radius: 50%; border: 2px solid var(--line); cursor: pointer; }
+  .swatch[aria-pressed="true"] { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .tray { display: flex; gap: 8px; margin-top: 14px; overflow-x: auto; min-height: 0; }
+  .tray canvas { height: 64px; width: auto; border-radius: 8px; display: block; flex: none; }
+
+  .msg { margin-top: 12px; font-size: 14px; color: var(--ink-soft); min-height: 21px; }
+  .msg.bad { color: var(--accent); }
+
+  /* Result */
+  .result { display: grid; gap: 24px; }
+  @media (min-width: 820px) { .result { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } }
+  .preview { background: var(--surface-2); border-radius: var(--radius); padding: 18px; display: grid; place-items: center; }
+  .preview canvas { max-width: 100%; max-height: 72vh; width: auto; height: auto; display: block; box-shadow: var(--shadow); border-radius: 4px; }
+  .panel { display: grid; gap: 18px; }
+  .panel h2 { font-family: "Fraunces", serif; font-weight: 600; font-size: 30px; margin: 0; letter-spacing: -.02em; }
+  .field { display: grid; gap: 8px; }
+  .field > span { font-size: 13px; color: var(--ink-soft); font-weight: 500; }
+  .field input[type=text] { border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 10px 14px; }
+  .field label.check { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+  .out { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 999px; font-size: 14px; opacity: 0; transition: .25s; pointer-events: none; z-index: 10; max-width: calc(100vw - 32px); }
+  .toast.show { opacity: 1; transform: translateX(-50%); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .count.show { animation-duration: 1s; animation-name: fade; }
+    @keyframes fade { 0%,100% { opacity: 0; } 20%,80% { opacity: 1; } }
+    .demo-strip { transform: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="./" id="homeLink"><i></i>foto bareng</a>
+    <span class="pill" id="status" hidden>Siap</span>
+  </header>
+
+  <!-- HOME -->
+  <section class="screen" id="scrHome">
+    <div class="hero">
+      <div>
+        <h1>Photobooth berdua, <em>walau beda tempat.</em></h1>
+        <p class="lead">Buat ruangan, kirim link ke temanmu, lalu jepret bareng. Foto kalian jadi satu strip.</p>
+        <div class="actions">
+          <button class="btn primary" id="btnCreate">Buat ruangan</button>
+          <button class="btn" id="btnSolo">Foto sendiri</button>
+        </div>
+        <form class="join-row" id="joinForm">
+          <input id="joinCode" placeholder="punya kode? ketik di sini" autocomplete="off" maxlength="12" aria-label="Kode ruangan">
+          <button class="btn small" type="submit">Gabung</button>
+        </form>
+        <p class="note">Video tersambung langsung antar perangkat. Foto dibuat di HP masing-masing dan tidak disimpan di server mana pun.</p>
+      </div>
+      <div class="demo-strip" aria-hidden="true">
+        <div class="cell"><span></span><span></span></div>
+        <div class="cell"><span></span><span></span></div>
+        <div class="cell"><span></span><span></span></div>
+        <b>foto bareng</b>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOIN (guest landing, needs a tap for camera + iOS playback) -->
+  <section class="screen" id="scrJoin" hidden>
+    <div class="hero">
+      <div>
+        <h1>Kamu diajak <em>foto bareng.</em></h1>
+        <p class="lead">Kode ruangan <strong id="joinShow"></strong>. Izinkan kamera dan mikrofon supaya temanmu bisa melihatmu.</p>
+        <div class="actions">
+          <button class="btn primary" id="btnJoin">Gabung sekarang</button>
+          <a class="btn" href="./">Batal</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOOTH -->
+  <section class="screen" id="scrBooth" hidden>
+    <div class="invite" id="invite" hidden>
+      <div class="txt"><strong>Kirim link ini ke temanmu</strong>Kode ruangan: <span class="code" id="roomCode"></span></div>
+      <button class="btn small" id="btnCopy">Salin link</button>
+      <button class="btn small primary" id="btnInvite">Kirim lewat WhatsApp</button>
+    </div>
+
+    <div class="stage" id="stage">
+      <div class="tile me">
+        <video id="vMe" playsinline autoplay muted></video>
+        <span class="tag">Kamu</span>
+        <div class="flash" id="flashMe"></div>
+      </div>
+      <div class="tile them">
+        <video id="vThem" playsinline autoplay></video>
+        <span class="tag" id="themTag">Teman</span>
+        <div class="empty" id="themEmpty">Menunggu teman bergabung…</div>
+        <div class="flash" id="flashThem"></div>
+      </div>
+      <div class="count" id="count"></div>
+      <div class="shotlabel" id="shotLabel" hidden></div>
+    </div>
+
+    <div class="tray" id="tray"></div>
+
+    <div class="controls">
+      <div class="group" id="layoutGroup">
+        <span class="lbl">Layout</span>
+        <button class="chip" data-layout="strip3" aria-pressed="false">Strip 3</button>
+        <button class="chip" data-layout="strip4" aria-pressed="true">Strip 4</button>
+        <button class="chip" data-layout="grid4" aria-pressed="false">Grid 2×2</button>
+      </div>
+      <div class="group">
+        <button class="btn icon" id="btnMic" title="Matikan mikrofon" aria-label="Matikan mikrofon">🎙️</button>
+        <button class="btn primary" id="btnStart" disabled>Mulai jepret</button>
+      </div>
+    </div>
+    <div class="msg" id="msg"></div>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen" id="scrResult" hidden>
+    <div class="result">
+      <div class="preview"><canvas id="out" width="10" height="10"></canvas></div>
+      <div class="panel">
+        <h2>Jadi! Hias sedikit?</h2>
+        <div class="field">
+          <span>Filter</span>
+          <div class="group" id="filterGroup">
+            <button class="chip" data-filter="normal" aria-pressed="true">Normal</button>
+            <button class="chip" data-filter="bw" aria-pressed="false">Hitam putih</button>
+            <button class="chip" data-filter="sepia" aria-pressed="false">Sepia</button>
+            <button class="chip" data-filter="vintage" aria-pressed="false">Vintage</button>
+            <button class="chip" data-filter="pink" aria-pressed="false">Soft pink</button>
+          </div>
+        </div>
+        <div class="field">
+          <span>Warna frame</span>
+          <div class="group" id="themeGroup"></div>
+        </div>
+        <div class="field">
+          <span>Hiasan</span>
+          <div class="group" id="decoGroup">
+            <button class="chip" data-deco="none" aria-pressed="false">Polos</button>
+            <button class="chip" data-deco="hearts" aria-pressed="true">Hati</button>
+            <button class="chip" data-deco="flowers" aria-pressed="false">Bunga</button>
+            <button class="chip" data-deco="stars" aria-pressed="false">Bintang</button>
+          </div>
+        </div>
+        <div class="field">
+          <span>Tulisan</span>
+          <input type="text" id="titleInput" maxlength="28" value="foto bareng">
+          <label class="check"><input type="checkbox" id="dateCheck" checked> Tampilkan tanggal</label>
+        </div>
+        <div class="out">
+          <button class="btn primary" id="btnShare">Bagikan</button>
+          <button class="btn" id="btnDownload">Simpan foto</button>
+          <button class="btn" id="btnAgain">Foto lagi</button>
+        </div>
+        <p class="note" id="resultNote"></p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="compose.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
